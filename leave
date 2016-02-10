@@ -1,0 +1,46 @@
+#!/bin/bash
+#Bash script for simple work control
+#Requires notify-send
+#Optional requirement is slmenu
+SLMENU=0
+SLMENU_PATH=$(which slmenu)
+
+NOTIFY="notify-send \"It's time\" \"Leave fucking computer now, little fucker!\""
+
+slmenu-timeset()
+{
+	PRESETS="nope\n5min\n10min\n15min\n20min\n30min\n40min\n45min\n50min\n60min\nOTHER"
+	ANS=$(echo -e ${PRESETS} | slmenu)
+	if [ "${ANS}" == "nope" ];then
+		exit 0
+	fi
+
+	if [ "${ANS}" == "OTHER" ]; then
+		TM=-1
+		echo "Input absolute time (e.g. 22:30, 12:00)"
+		read TM
+		echo ${NOTIFY} | at ${TM}
+	else
+		ANS=$(echo ${ANS} | sed s/min//)
+		echo ${NOTIFY} | at now + ${ANS} min
+	fi
+		
+}
+
+std-timeset()
+{
+	TM=-1
+	echo "Input absolute time (e.g. 22:30, 12:00)"
+	read TM
+	echo ${NOTIFY} | at ${TM}
+}
+
+if [[ -z $(echo ${SLMENU_PATH} | grep no) ]]; then
+	SLMENU=1
+fi
+
+if [[ ${SLMENU} -eq 1 ]]; then
+	slmenu-timeset
+else
+	std-timeset
+fi
